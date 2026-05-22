@@ -7,95 +7,33 @@ terraform {
   }
 }
 
-# AWS Provider
 provider "aws" {
   region = "us-east-1"
+
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
 }
 
-# Security Group
+# SECURITY GROUP (ONLY SSH)
 resource "aws_security_group" "ec2_security_group" {
 
   name        = "hotstar-security-group"
-  description = "Allow SSH, Jenkins, HTTP, SMTP"
+  description = "Allow SSH only"
 
-  # SSH Port
   ingress {
-
     description = "SSH"
 
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTP Port
-  ingress {
-
-    description = "HTTP"
-
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Jenkins Port
-  ingress {
-
-    description = "Jenkins"
-
-    from_port = 8080
-    to_port   = 8080
-    protocol  = "tcp"
-
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # SMTP Port
-  ingress {
-
-    description = "SMTP TLS"
-
-    from_port = 587
-    to_port   = 587
-    protocol  = "tcp"
-
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Gmail SMTP SSL
-  ingress {
-
-    description = "Gmail SMTP SSL"
-
-    from_port = 465
-    to_port   = 465
-    protocol  = "tcp"
-
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Custom Port 493
-  ingress {
-
-    description = "Custom Port"
-
-    from_port = 493
-    to_port   = 493
-    protocol  = "tcp"
-
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Outbound Traffic
   egress {
-
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -105,12 +43,11 @@ resource "aws_security_group" "ec2_security_group" {
   }
 }
 
-# EC2 Instance
+# EC2 INSTANCE
 resource "aws_instance" "monitoring_server" {
 
-  ami = "ami-091138d0f0d41ff90"
-
-  instance_type = "t3.large"
+  ami           = "ami-091138d0f0d41ff90"
+  instance_type = "t2.micro"
 
   key_name = var.key_name
 
