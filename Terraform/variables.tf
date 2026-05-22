@@ -1,20 +1,14 @@
-output "public_ip" {
+variable "instance_name" {
 
-  value = aws_instance.monitoring_server.public_ip
+  description = "EC2 Instance Name"
+
+  default = "Hotstar-Monitoring-Server"
 }
 
-output "public_dns" {
+variable "key_name" {
 
-  value = aws_instance.monitoring_server.public_dns
-}
+  description = "AWS EC2 Key Pair"
 
-output "instance_id" {
-
-  value = aws_instance.monitoring_server.id
-}
-
-output "ssh_command" {
-
-  value = "ssh -i terra.pem ubuntu@${aws_instance.monitoring_server.public_ip}"
+  default = "terra"
 }
 
