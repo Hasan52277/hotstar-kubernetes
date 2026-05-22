@@ -1,17 +1,20 @@
-variable "instance_name" {
-  default = "Monitoring_server" # Names of the instance
+output "public_ip" {
+
+  value = aws_instance.monitoring_server.public_ip
 }
 
-variable "key_name" {
-  default = "terra" # Names of key in aws
+output "public_dns" {
+
+  value = aws_instance.monitoring_server.public_dns
 }
 
+output "instance_id" {
 
-variable "access_key" {
-  default = "insert" # aws access key
+  value = aws_instance.monitoring_server.id
 }
 
-variable "secret_key" {
-  default = "insert" # aws secret key
+output "ssh_command" {
+
+  value = "ssh -i terra.pem ubuntu@${aws_instance.monitoring_server.public_ip}"
 }
 

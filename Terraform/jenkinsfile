@@ -2,40 +2,50 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_DEFAULT_REGION    = 'us-east-1'
     }
 
     parameters {
-        string(name: 'action', defaultValue: 'apply', description: 'Terraform action: apply or destroy')
+        choice(
+            name: 'ACTION',
+            choices: ['apply', 'destroy'],
+            description: 'Terraform Action'
+        )
     }
 
     stages {
-        stage('Checkout from Git') {                        
+
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/Aseemakram19/hotstar-kubernetes.git'
+                git branch: 'main', url: 'https://github.com/Hasan52277/hotstar-kubernetes.git'
             }
         }
 
-        stage('Terraform version') {
+        stage('Terraform Version') {
             steps {
                 sh 'terraform --version'
             }
         }
 
-        stage('Terraform init') {
+        stage('Terraform Init') {
             steps {
                 dir('Terraform') {
-                    sh '''
-                    terraform init \
-                    -backend-config="access_key=$AWS_ACCESS_KEY_ID" \
-                    -backend-config="secret_key=$AWS_SECRET_ACCESS_KEY"
-                    '''
+                    sh 'terraform init -input=false'
                 }
             }
         }
 
-        stage('Terraform validate') {
+        stage('Terraform Format Check') {
+            steps {
+                dir('Terraform') {
+                    sh 'terraform fmt -check'
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
             steps {
                 dir('Terraform') {
                     sh 'terraform validate'
@@ -43,26 +53,34 @@ pipeline {
             }
         }
 
-        stage('Terraform plan') {
+        stage('Terraform Plan') {
             steps {
                 dir('Terraform') {
-                    sh '''
-                    terraform plan \
-                    -var="access_key=$AWS_ACCESS_KEY_ID" \
-                    -var="secret_key=$AWS_SECRET_ACCESS_KEY"
-                    '''
+                    sh 'terraform plan -out=tfplan'
                 }
             }
         }
 
-        stage('Terraform apply/destroy') {
+        stage('Approval (Only for Apply)') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
+            steps {
+                input message: "Do you want to APPLY Terraform changes?"
+            }
+        }
+
+        stage('Terraform Apply / Destroy') {
             steps {
                 dir('Terraform') {
-                    sh '''
-                    terraform ${action} --auto-approve \
-                    -var="access_key=$AWS_ACCESS_KEY_ID" \
-                    -var="secret_key=$AWS_SECRET_ACCESS_KEY"
-                    '''
+                    script {
+                        if (params.ACTION == 'apply') {
+                            sh 'terraform apply -auto-approve tfplan'
+                        } 
+                        else if (params.ACTION == 'destroy') {
+                            sh 'terraform destroy -auto-approve'
+                        }
+                    }
                 }
             }
         }
@@ -72,8 +90,13 @@ pipeline {
         success {
             echo '✅ Terraform execution completed successfully!'
         }
+
         failure {
-            echo '❌ Terraform execution failed! Check the logs.'
+            echo '❌ Terraform execution failed!'
+        }
+
+        always {
+            cleanWs()
         }
     }
 }

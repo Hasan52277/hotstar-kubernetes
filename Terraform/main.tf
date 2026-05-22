@@ -7,45 +7,118 @@ terraform {
   }
 }
 
-# Configure the AWS Provider
+# AWS Provider
 provider "aws" {
-  region     = "ap-south-1"
-  access_key = var.access_key
-  secret_key = var.secret_key
+  region = "us-east-1"
 }
 
-# create security group for the ec2 instance
+# Security Group
 resource "aws_security_group" "ec2_security_group" {
-  name        = "ec2 security group"
-  description = "allow access on ports 22"
 
-  # allow access on port 22
+  name        = "hotstar-security-group"
+  description = "Allow SSH, Jenkins, HTTP, SMTP"
+
+  # SSH Port
   ingress {
-    description = "ssh access"
+
+    description = "SSH"
+
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
+
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # HTTP Port
+  ingress {
+
+    description = "HTTP"
+
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Jenkins Port
+  ingress {
+
+    description = "Jenkins"
+
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # SMTP Port
+  ingress {
+
+    description = "SMTP TLS"
+
+    from_port   = 587
+    to_port     = 587
+    protocol    = "tcp"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Gmail SMTP SSL
+  ingress {
+
+    description = "Gmail SMTP SSL"
+
+    from_port   = 465
+    to_port     = 465
+    protocol    = "tcp"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Custom Port 493
+  ingress {
+
+    description = "Custom Port"
+
+    from_port   = 493
+    to_port     = 493
+    protocol    = "tcp"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Outbound Traffic
   egress {
+
     from_port   = 0
     to_port     = 0
-    protocol    = -1
+    protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name = "Monitoring server security group"
+    Name = "hotstar-security-group"
   }
 }
 
-resource "aws_instance" "Monitoring_server" {
-  ami             = "ami-00bb6a80f01f03502"
-  instance_type   = "t2.medium"
-  security_groups = [aws_security_group.ec2_security_group.name]
-  key_name        = var.key_name
+# EC2 Instance
+resource "aws_instance" "monitoring_server" {
+
+  ami           = "ami-091138d0f0d41ff90"
+
+  instance_type = "t3.large"
+
+  key_name = var.key_name
+
+  vpc_security_group_ids = [
+    aws_security_group.ec2_security_group.id
+  ]
+
   tags = {
-    Name : var.instance_name
+    Name = var.instance_name
   }
 }
