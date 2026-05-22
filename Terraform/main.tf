@@ -23,9 +23,9 @@ resource "aws_security_group" "ec2_security_group" {
 
     description = "SSH"
 
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -35,9 +35,9 @@ resource "aws_security_group" "ec2_security_group" {
 
     description = "HTTP"
 
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -47,9 +47,9 @@ resource "aws_security_group" "ec2_security_group" {
 
     description = "Jenkins"
 
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
+    from_port = 8080
+    to_port   = 8080
+    protocol  = "tcp"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -59,9 +59,9 @@ resource "aws_security_group" "ec2_security_group" {
 
     description = "SMTP TLS"
 
-    from_port   = 587
-    to_port     = 587
-    protocol    = "tcp"
+    from_port = 587
+    to_port   = 587
+    protocol  = "tcp"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -71,9 +71,9 @@ resource "aws_security_group" "ec2_security_group" {
 
     description = "Gmail SMTP SSL"
 
-    from_port   = 465
-    to_port     = 465
-    protocol    = "tcp"
+    from_port = 465
+    to_port   = 465
+    protocol  = "tcp"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -83,9 +83,9 @@ resource "aws_security_group" "ec2_security_group" {
 
     description = "Custom Port"
 
-    from_port   = 493
-    to_port     = 493
-    protocol    = "tcp"
+    from_port = 493
+    to_port   = 493
+    protocol  = "tcp"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -93,9 +93,9 @@ resource "aws_security_group" "ec2_security_group" {
   # Outbound Traffic
   egress {
 
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -108,7 +108,7 @@ resource "aws_security_group" "ec2_security_group" {
 # EC2 Instance
 resource "aws_instance" "monitoring_server" {
 
-  ami           = "ami-091138d0f0d41ff90"
+  ami = "ami-091138d0f0d41ff90"
 
   instance_type = "t3.large"
 
